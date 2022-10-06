@@ -2,14 +2,32 @@ const express = require("express");
 const cors = require("cors");
 const app = express();
 const models = require("./models");
+const multer = require("multer");
+const upload = multer({ storage: multer.diskStorage({
+  destination:function(req, file, cb){
+    cb(null, "uploads")
+  },
+  filename:function(req, file, cb){
+    cb(null,file.originalname)
+  },
+}),});
 const port = 8080;
 
 app.use(express.json());
 app.use(cors());
+app.use("/uploads", express.static("uploads"));
 app.get("/products", (req, res) => {
   models.Product.findAll({
-    order:[["createdAt","DESC"]], //ASC
-    attributes:["id","name","price","seller","description","imageUrl","createdAt"],
+    order: [["createdAt", "DESC"]], //ASC
+    attributes: [
+      "id",
+      "name",
+      "price",
+      "seller",
+      "description",
+      "imageUrl",
+      "createdAt",
+    ],
   })
     .then((result) => {
       res.send({ Product: result });
@@ -25,13 +43,22 @@ app.get("/products/:id", (req, res) => {
   models.Product.findOne({ where: { id: id } })
     .then((result) => {
       console.log("product:", result);
-      res.send({product:result});
+      res.send({ product: result });
     })
     .catch((error) => {
       console.error(error);
-      res.send('상품조회시 에러가 발생했습니다')
+      res.send("상품조회시 에러가 발생했습니다");
     });
 });
+
+app.post("/image", upload.single("image"), function (req, res) {
+  const file = req.file;
+  console.log(file);
+  res.send({
+    imageUrl: file.path,
+  });
+});
+
 app.post("/products", (req, res) => {
   const body = req.body;
   const { name, price, seller, description, imageUrl } = body;
