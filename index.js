@@ -5,17 +5,29 @@ const models = require("./models");
 const multer = require("multer");
 const upload = multer({ storage: multer.diskStorage({
   destination:function(req, file, cb){
-    cb(null, "uploads")
+    cb(null, "uploads");
   },
   filename:function(req, file, cb){
-    cb(null,file.originalname)
+    cb(null,file.originalname);
   },
 }),});
-const port = 8080;
+const port = process.env.PORT || 8080;
 
 app.use(express.json());
 app.use(cors());
 app.use("/uploads", express.static("uploads"));
+
+app.get('/banners',(req,res)=>{
+  models.Banner.findAll({limit:2}).then((result)=>{
+    res.send({
+      banners:result,
+    });
+  }).catch((error)=>{
+    console.error(error);
+    res.status(500).send("에러가 발생했습니다");
+  });
+});
+
 app.get("/products", (req, res) => {
   models.Product.findAll({
     order: [["createdAt", "DESC"]], //ASC
@@ -34,7 +46,7 @@ app.get("/products", (req, res) => {
     })
     .catch((error) => {
       console.error(error);
-      res.send("에러발생");
+      res.status(400).send("에러발생");
     });
 });
 app.get("/products/:id", (req, res) => {
@@ -72,7 +84,7 @@ app.post("/products", (req, res) => {
     })
     .catch((error) => {
       console.error(error);
-      res.send("상품업로드에 문제가 발생하였습니다.");
+      res.status(400).send("상품업로드에 문제가 발생하였습니다.");
     });
 });
 app.post("/login", (req, res) => {
