@@ -91,11 +91,11 @@ app.post("/login", (req, res) => {
   res.send("로그인해주세요");
 });
 app.listen(port, () => {
-  console.log("망고샵의 서버가 켜졌습니다");
+  console.log("TOPTENSERVERLODING");
   models.sequelize
     .sync()
     .then(() => {
-      console.log("🙊DB연결성공");
+      console.log("🙊TOPTENDB연결성공");
     })
     .catch((err) => {
       console.error(err);
